@@ -33,29 +33,29 @@ end
 M.new = function()
   M.stack()
   vim.cmd[[vertical topleft new]]
-  M.resize_master_pane_width()
+  M.reset_master()
 end
 
 --- Move the current master pane to the stack
 -- The layout should be the followings.
 --
--- is_clockwise: true  is_clockwise: false
---   ┌────────┐          ┌────────┐
---   │   M    │          │   S1   │
---   ├────────┤          ├────────┤
---   │   S1   │          │   S2   │
---   ├────────┤          ├────────┤
---   │   S2   │          │   S3   │
---   ├────────┤          ├────────┤
---   │   S3   │          │   M    │
---   └────────┘          └────────┘
--- @param is_clockwise Bool value for the direction. Default: true
-M.stack = function(is_clockwise)
-  is_clockwise = is_clockwise or true
+-- direction: true  direction: false
+--   ┌────────┐       ┌────────┐
+--   │   M    │       │   S1   │
+--   ├────────┤       ├────────┤
+--   │   S1   │       │   S2   │
+--   ├────────┤       ├────────┤
+--   │   S2   │       │   S3   │
+--   ├────────┤       ├────────┤
+--   │   S3   │       │   M    │
+--   └────────┘       └────────┘
+-- @param direction Bool value for the direction. Default: true (mean clockwise)
+M.stack = function(direction)
+  direction = direction or true
   local master_pane_id = vim.api.nvim_list_wins()[1]
   vim.cmd(('%dwincmd %s'):format(
     vim.api.nvim_win_get_number(master_pane_id),
-    is_clockwise and 'K' or 'J'
+    direction and 'K' or 'J'
   ))
 end
 
@@ -76,7 +76,7 @@ M.focus = function()
     %dwincmd w
     wincmd H
   ]]):format(current), false, {})
-  M.resize_master_pane_width()
+  M.reset_master()
 end
 
 --- Handler for BufWinEnter autocmd
@@ -95,19 +95,36 @@ end
 
 --- Close the current window
 M.close = function()
-  local in_master = vim.fn.winnr() == 1
-  vim.cmd[[close]]
-  if in_master then
+  vim.api.nvim_win_close(0, false)
+  local wins = vim.api.nvim_list_wins()
+  if wins[1] == vim.api.nvim_get_current_win() then
     vim.cmd[[wincmd H]]
-    M.resize_master_pane_width()
+    M.reset_master()
   end
 end
 
---- Widen the master pane 
-function M.widen_master()
+--- Resize the master pane 
+function M.resize_master(diff)
+  local wins = vim.api.nvim_list_wins()
+  local current = vim.api.nvim_get_current_win()
+  local size = vim.api.nvim_win_get_width(current)
+  local direction = wins[1] == current and 1 or -1
+  vim.api.nvim_win_set_width(current, size + diff * direction)
+  if master_pane_width then
+    master_pane_width = master_pane_width + diff
+  end
 end
 
-M.resize_master_pane_width = function()
+-- Rotate windows
+function M.rotate(direction)
+  direction = direction or true
+  M.stack(direction)
+  vim.cmd(('wincmd %s'):format(direction and 'W' or 'w'))
+  vim.cmd[[wincmd H]]
+  M.resize_master()
+end
+
+M.reset_master = function()
   local width
   if master_pane_width then
     if type(master_pane_width) == 'number' then
