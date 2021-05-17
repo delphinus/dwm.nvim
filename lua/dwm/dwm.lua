@@ -31,13 +31,12 @@ end
 --   ├────────┤       ├────────┤
 --   │   S3   │       │   M    │
 --   └────────┘       └────────┘
--- @param direction Bool value for the direction. Default: true (mean clockwise)
-function M:stack(direction) -- luacheck: ignore 212
-  direction = direction == nil
+-- @param bottom Bool value to stack the master. Default: false
+function M:stack(bottom) -- luacheck: ignore 212
   local master_pane_id = vim.api.nvim_list_wins()[1]
   vim.cmd(('%dwincmd %s'):format(
     vim.api.nvim_win_get_number(master_pane_id),
-    direction and 'K' or 'J'
+    bottom and 'J' or 'K'
   ))
 end
 
@@ -97,11 +96,11 @@ function M:resize(diff)
   end
 end
 
--- Rotate windows
-function M:rotate(direction)
-  direction = direction == nil
-  self:stack(direction)
-  vim.cmd(('wincmd %s'):format(direction and 'W' or 'w'))
+--- Rotate windows
+-- @param left Bool value to rotate left. Default: false
+function M:rotate(left)
+  self:stack(not left)
+  vim.cmd(('wincmd %s'):format(left and 'W' or 'w'))
   vim.cmd[[wincmd H]]
   self:reset()
 end
