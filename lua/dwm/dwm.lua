@@ -98,9 +98,11 @@ end
 --- Rotate windows
 -- @param left Bool value to rotate left. Default: false
 function M:rotate(left)
-  self:stack(not left)
-  vim.cmd(('wincmd %s'):format(left and 'W' or 'w'))
-  vim.cmd[[wincmd H]]
+  self:stack(left)
+  vim.api.nvim_exec(([[
+    wincmd %s
+    wincmd H
+  ]]):format(left and 'w' or 'W'), false)
   self:reset()
 end
 
