@@ -54,7 +54,7 @@ function M:focus()
   vim.api.nvim_exec(([[
     %dwincmd w
     wincmd H
-  ]]):format(current), false, {})
+  ]]):format(current), false)
   self:reset()
 end
 
