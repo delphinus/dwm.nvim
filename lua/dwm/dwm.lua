@@ -63,8 +63,8 @@ end
 -- Recreate layout broken by the new window
 function M:buf_win_enter()
   if #vim.api.nvim_tabpage_list_wins(0) == 1 or vim.b.dwm_disabled or
-    not vim.bo.buflisted or vim.bo.filetype == '' or vim.bo.filetype == 'help'
-    or vim.bo.buftype == 'quickfix' then
+    not vim.bo.buflisted or vim.bo.filetype == 'help' or
+    vim.bo.buftype == 'quickfix' then
     return
   end
 
