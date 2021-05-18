@@ -34,10 +34,8 @@ end
 -- @param bottom Bool value to stack the master. Default: false
 function M:stack(bottom) -- luacheck: ignore 212
   local master_pane_id = vim.api.nvim_list_wins()[1]
-  vim.cmd(('%dwincmd %s'):format(
-    vim.api.nvim_win_get_number(master_pane_id),
-    bottom and 'J' or 'K'
-  ))
+  vim.api.nvim_set_current_win(master_pane_id)
+  vim.cmd('wincmd '..(bottom and 'J' or 'K'))
 end
 
 --- Move the current window to the master pane.
