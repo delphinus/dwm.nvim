@@ -13,6 +13,7 @@ M = {
   rotate = function() dwm:rotate() end,
   rotateLeft = function() dwm:rotate(true) end,
   shrink = function() dwm:resize(-1) end,
+  dwm = dwm,
 
   setup = function(opts)
     opts = vim.tbl_extend('force', {
