@@ -49,6 +49,7 @@ function M:focus()
   local current = vim.api.nvim_get_current_win()
   if wins[1] == current then
     vim.cmd[[wincmd w]]
+    current = vim.api.nvim_get_current_win()
   end
   self:stack()
   if current ~= vim.api.nvim_get_current_win() then
