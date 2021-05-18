@@ -33,7 +33,7 @@ end
 --   └────────┘       └────────┘
 -- @param bottom Bool value to stack the master. Default: false
 function M:stack(bottom) -- luacheck: ignore 212
-  local master_pane_id = vim.api.nvim_list_wins()[1]
+  local master_pane_id = vim.api.nvim_tabpage_list_wins(0)[1]
   vim.api.nvim_set_current_win(master_pane_id)
   vim.cmd('wincmd '..(bottom and 'J' or 'K'))
 end
@@ -42,7 +42,7 @@ end
 -- The previous master window is added to the top of the stack. If the current
 -- window is in the master pane already, it is moved to the top of the stack.
 function M:focus()
-  local wins = vim.api.nvim_list_wins()
+  local wins = vim.api.nvim_tabpage_list_wins(0)
   if #wins == 1 then
     return
   end
@@ -61,7 +61,7 @@ end
 --- Handler for BufWinEnter autocmd
 -- Recreate layout broken by the new window
 function M:buf_win_enter()
-  if #vim.api.nvim_list_wins() == 1 or vim.b.dwm_disabled or
+  if #vim.api.nvim_tabpage_list_wins(0) == 1 or vim.b.dwm_disabled or
     not vim.bo.buflisted or vim.bo.filetype == '' or vim.bo.filetype == 'help'
     or vim.bo.buftype == 'quickfix' then
     return
@@ -75,7 +75,7 @@ end
 --- Close the current window
 function M:close()
   vim.api.nvim_win_close(0, false)
-  local wins = vim.api.nvim_list_wins()
+  local wins = vim.api.nvim_tabpage_list_wins(0)
   if wins[1] == vim.api.nvim_get_current_win() then
     vim.cmd[[wincmd H]]
     self:reset()
@@ -84,7 +84,7 @@ end
 
 --- Resize the master pane
 function M:resize(diff)
-  local wins = vim.api.nvim_list_wins()
+  local wins = vim.api.nvim_tabpage_list_wins(0)
   local current = vim.api.nvim_get_current_win()
   local size = vim.api.nvim_win_get_width(current)
   local direction = wins[1] == current and 1 or -1
@@ -116,7 +116,7 @@ function M:reset()
     width = math.floor(vim.o.columns / 2)
   end
 
-  local wins = vim.api.nvim_list_wins()
+  local wins = vim.api.nvim_tabpage_list_wins(0)
   local height = math.floor(vim.o.lines / (#wins - 1))
   for i, w in ipairs(wins) do
     if i == 1 then
