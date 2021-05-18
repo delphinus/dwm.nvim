@@ -51,11 +51,10 @@ function M:focus()
     vim.cmd[[wincmd w]]
   end
   self:stack()
-  local win_num = vim.api.nvim_win_get_number(current)
-  vim.api.nvim_exec(([[
-    %dwincmd w
-    wincmd H
-  ]]):format(win_num), false)
+  if current ~= vim.api.nvim_get_current_win() then
+    vim.api.nvim_set_current_win(current)
+  end
+  vim.cmd[[wincmd H]]
   self:reset()
 end
 
