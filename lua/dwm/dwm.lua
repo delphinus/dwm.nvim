@@ -35,7 +35,7 @@ end
 function M:stack(bottom)
   local master_pane_id = self:get_wins()[1]
   vim.api.nvim_set_current_win(master_pane_id)
-  vim.cmd('wincmd '..(bottom and 'J' or 'K'))
+  self:wincmd(bottom and 'J' or 'K')
 end
 
 --- Move the current window to the master pane.
@@ -48,14 +48,14 @@ function M:focus()
   end
   local current = vim.api.nvim_get_current_win()
   if wins[1] == current then
-    vim.cmd[[wincmd w]]
+    self:wincmd'w'
     current = vim.api.nvim_get_current_win()
   end
   self:stack()
   if current ~= vim.api.nvim_get_current_win() then
     vim.api.nvim_set_current_win(current)
   end
-  vim.cmd[[wincmd H]]
+  self:wincmd'H'
   self:reset()
 end
 
@@ -68,7 +68,7 @@ function M:buf_win_enter()
     return
   end
 
-  vim.cmd[[wincmd K]] -- Move the new window to the top of the stack
+  self:wincmd'K' -- Move the new window to the top of the stack
   self:focus() -- Focus the new window (twice :)
   self:focus()
 end
@@ -77,7 +77,7 @@ end
 function M:close()
   vim.api.nvim_win_close(0, false)
   if self:get_wins()[1] == vim.api.nvim_get_current_win() then
-    vim.cmd[[wincmd H]]
+    vim:wincmd'H'
     self:reset()
   end
 end
@@ -98,10 +98,8 @@ end
 -- @param left Bool value to rotate left. Default: false
 function M:rotate(left)
   self:stack(left)
-  vim.api.nvim_exec(([[
-    wincmd %s
-    wincmd H
-  ]]):format(left and 'w' or 'W'), false)
+  self:wincmd(left and 'w' or 'W')
+  self:wincmd'H'
   self:reset()
 end
 
@@ -138,6 +136,8 @@ function M:get_wins() -- luacheck: ignore 212
   end
   return wins
 end
+
+function M:wincmd(cmd) vim.cmd('wincmd '..cmd) end -- luacheck: ignore 212
 
 function M:map(lhs, f)
   local rhs
