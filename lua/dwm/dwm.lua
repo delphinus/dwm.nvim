@@ -129,7 +129,7 @@ function M:reset()
   end
 end
 
-function M:get_wins() -- luacheck ignore 212
+function M:get_wins() -- luacheck: ignore 212
   local wins = {}
   for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     if vim.api.nvim_win_get_config(w).relative == '' then
