@@ -77,7 +77,7 @@ end
 function M:close()
   vim.api.nvim_win_close(0, false)
   if self:get_wins()[1] == vim.api.nvim_get_current_win() then
-    vim:wincmd'H'
+    self:wincmd'H'
     self:reset()
   end
 end
