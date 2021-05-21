@@ -28,7 +28,7 @@ M = {
           if not v or type(v) == 'number' and v > 0 then
             return true
           end
-          return type(v) == 'string' and v:match'^d+%%$'
+          return type(v) == 'string' and v:match'^%d+%%$'
         end,
         'number (50) or number+% (66%)',
       },
