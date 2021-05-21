@@ -130,9 +130,8 @@ end
 function M:get_wins() -- luacheck: ignore 212
   local wins = {}
   for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-    if vim.api.nvim_win_get_config(w).relative == '' then
-      table.insert(wins, w)
-    end
+    local is_float = vim.api.nvim_win_get_config(w).relative ~= ''
+    if not is_float then table.insert(wins, w) end
   end
   return wins
 end
