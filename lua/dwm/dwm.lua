@@ -73,6 +73,19 @@ function M:buf_win_enter()
   self:focus()
 end
 
+--- Clean up the layout of windows
+function M:clean_up()
+  local wins = self:get_wins()
+  if #wins == 1 then return end
+  for i = 2, #wins do
+    vim.api.nvim_set_current_win(wins[i])
+    self:wincmd'J'
+  end
+  vim.api.nvim_set_current_win(wins[1])
+  self:wincmd'H'
+  self:reset()
+end
+
 --- Close the current window
 function M:close()
   vim.api.nvim_win_close(0, false)
