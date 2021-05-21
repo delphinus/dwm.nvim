@@ -117,12 +117,12 @@ function M:reset()
   end
 
   local wins = self:get_wins()
-  local height = math.floor(vim.o.lines / (#wins - 1))
   for i, w in ipairs(wins) do
     if i == 1 then
       vim.api.nvim_win_set_width(w, width)
+      vim.api.nvim_win_set_option(w, 'winfixwidth', true)
     else
-      vim.api.nvim_win_set_height(w, height)
+      vim.api.nvim_win_set_option(w, 'winfixwidth', false)
     end
   end
 end

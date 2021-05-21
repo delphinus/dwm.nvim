@@ -70,6 +70,12 @@ M = {
         augroup end
       ]], false)
     end
+
+    if vim.v.vim_did_enter == 1 then
+      dwm:reset()
+    else
+      vim.cmd[[autocmd VimEnter * ++once lua require'dwm'.dwm:reset()]]
+    end
   end,
 }
 
