@@ -33,7 +33,7 @@ M = {
         function(v)
           if not v or type(v) == 'number' and v > 0 then return true end
           if not type(v) == 'string' then return false end
-          local percentage =  v:match'^(%d+)%%$'
+          local percentage = tonumber(v:match'^(%d+)%%$')
           return percentage > 0 and percentage < 100
         end,
         'number (50) or number+% (66%)',
