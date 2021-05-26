@@ -92,10 +92,9 @@ function M:resize(diff)
   local current = vim.api.nvim_get_current_win()
   local size = vim.api.nvim_win_get_width(current)
   local direction = wins[1] == current and 1 or -1
-  vim.api.nvim_win_set_width(current, size + diff * direction)
-  if self.master_pane_width then
-    self.master_pane_width = self.master_pane_width + diff
-  end
+  local width = size + diff * direction
+  vim.api.nvim_win_set_width(current, width)
+  self.master_pane_width = width
 end
 
 --- Rotate windows
@@ -114,19 +113,9 @@ function M:rotate(left)
 end
 
 function M:reset()
-  local width
-  if self.master_pane_width then
-    if type(self.master_pane_width) == 'number' then
-      width = self.master_pane_width
-    else
-      local percentage = tonumber(self.master_pane_width:match'^(%d+)%%$')
-      width = math.floor(vim.o.columns * percentage / 100)
-    end
-    if width * self.master_pane_count > vim.o.columns then
-      self:warn'invalid width. use defaults'
-      width = self:default_master_pane_width()
-    end
-  else
+  local width = self:calculate_width()
+  if width * self.master_pane_count > vim.o.columns then
+    self:warn'invalid width. use defaults'
     width = self:default_master_pane_width()
   end
 
@@ -156,6 +145,20 @@ function M:reset()
       end
     end
   end
+end
+
+function M:parse_percentage(v) -- luacheck: ignore 212
+  return tonumber(v:match'^(%d+)%%$')
+end
+
+function M:calculate_width()
+  if type(self.master_pane_width) == 'number' then
+    return self.master_pane_width
+  elseif type(self.master_pane_width) == 'string' then
+    local percentage = self:parse_percentage(self.master_pane_width)
+    return math.floor(vim.o.columns * percentage / 100)
+  end
+  return self:default_master_pane_width()
 end
 
 function M:default_master_pane_width()
