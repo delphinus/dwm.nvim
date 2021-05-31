@@ -63,8 +63,8 @@ end
 -- Recreate layout broken by the new window
 function M:buf_win_enter()
   if #self:get_wins() == 1 or vim.w.dwm_disabled or vim.b.dwm_disabled or
-    not vim.bo.buflisted or vim.bo.filetype == 'help' or
-    vim.bo.buftype == 'quickfix' then
+    not vim.opt.buflisted:get() or vim.opt.filetype:get() == 'help' or
+    vim.opt.buftype:get() == 'quickfix' then
     return
   end
 
