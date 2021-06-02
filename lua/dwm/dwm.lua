@@ -190,7 +190,7 @@ function M:map(lhs, f)
   vim.api.nvim_set_keymap('n', lhs, rhs, {noremap = true, silent = true})
 end
 
-function M:warn(msg) -- luachecck: ignore 212
+function M:warn(msg) -- luacheck: ignore 212
   vim.api.nvim_echo({{msg, 'WarningMsg'}}, true, {})
 end
 
