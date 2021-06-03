@@ -65,8 +65,12 @@ end
 --- Handler for BufWinEnter autocmd
 -- Recreate layout broken by the new window
 function M:buf_win_enter()
-  if #self:get_wins() == 1 or vim.w.dwm_disabled or vim.b.dwm_disabled or
-    not vim.opt.buflisted:get() or vim.opt.filetype:get() == 'help' or
+  if #self:get_wins() == 1 or
+    vim.w.dwm_disabled or
+    vim.b.dwm_disabled or
+    not vim.opt.buflisted:get() or
+    vim.opt.filetype:get() == '' or
+    vim.opt.filetype:get() == 'help' or
     vim.opt.buftype:get() == 'quickfix' then
     return
   end
