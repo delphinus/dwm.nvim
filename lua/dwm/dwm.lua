@@ -139,6 +139,7 @@ function M:reset()
       end
       vim.api.nvim_win_set_option(wins[i], 'winfixwidth', true)
     end
+    return
   end
 
   for i = self.master_pane_count, 1, -1 do
