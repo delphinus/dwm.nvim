@@ -20,23 +20,27 @@ M = {
       autocmd = true,
       key_maps = true,
       plug_maps = false,
+      master_pane_count = 1,
     }, opts or {})
     vim.validate{
+      master_pane_count = {
+        opts.master_pane_count,
+        function(v) return type(v) == 'number' and v > 0 end,
+        'number greater than 0',
+      },
       master_pane_width = {
         opts.master_pane_width,
         function(v)
-          if not v or type(v) == 'number' and v > 0 then
-            return true
-          end
-          return type(v) == 'string' and v:match'^%d+%%$'
+          if not v or type(v) == 'number' and v > 0 then return true end
+          if not type(v) == 'string' then return false end
+          local percentage = dwm:parse_percentage(v)
+          return percentage > 0 and percentage < 100
         end,
         'number (50) or number+% (66%)',
       },
     }
-
-    if opts.master_pane_width then
-      dwm.master_pane_width = opts.master_pane_width
-    end
+    dwm.master_pane_count = opts.master_pane_count
+    dwm.master_pane_width = opts.master_pane_width
 
     -- for backwards compatibility
     if opts.plug_maps then
