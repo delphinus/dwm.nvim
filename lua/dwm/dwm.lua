@@ -146,13 +146,12 @@ function M:reset()
     vim.api.nvim_set_current_win(wins[i])
     self:wincmd'H'
   end
-  for i, w in ipairs(wins) do
-    if i <= self.master_pane_count then
-      vim.api.nvim_win_set_width(w, width)
-      vim.api.nvim_win_set_option(w, 'winfixwidth', true)
-    else
-      vim.api.nvim_win_set_option(w, 'winfixwidth', false)
-    end
+  for _, w in ipairs(wins) do
+    vim.api.nvim_win_set_option(w, 'winfixwidth', false)
+  end
+  for i = 1, self.master_pane_count do
+    vim.api.nvim_win_set_width(wins[i], width)
+    vim.api.nvim_win_set_option(wins[i], 'winfixwidth', true)
   end
 end
 
