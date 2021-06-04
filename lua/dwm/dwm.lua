@@ -117,16 +117,18 @@ function M:rotate(left)
 end
 
 function M:reset()
+  local wins = self:get_wins()
+  if #wins == 1 then
+    return
+  end
+
   local width = self:calculate_width()
   if width * self.master_pane_count > vim.o.columns then
     self:warn'invalid width. use defaults'
     width = self:default_master_pane_width()
   end
 
-  local wins = self:get_wins()
-  if #wins == 1 then
-    return
-  elseif #wins <= self.master_pane_count then
+  if #wins <= self.master_pane_count then
     for i = self.master_pane_count, 1, -1 do
       vim.api.nvim_set_current_win(wins[i])
       self:wincmd'H'
