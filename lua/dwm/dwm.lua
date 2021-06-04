@@ -116,6 +116,8 @@ function M:rotate(left)
   self:reset()
 end
 
+--- Reset height and width of the windows
+-- This should be run after calling stack().
 function M:reset()
   local wins = self:get_wins()
   if #wins == 1 then
