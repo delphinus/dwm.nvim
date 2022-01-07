@@ -193,6 +193,10 @@ function M:wincmd(cmd)
 end -- luacheck: ignore 212
 
 function M:map(lhs, f)
+  if vim.keymap then
+    vim.keymap.set("n", lhs, f, { silent = true })
+    return
+  end
   local rhs
   if type(f) == "function" then
     if not _G[self.func_var_name] then
