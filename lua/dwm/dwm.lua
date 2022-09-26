@@ -1,4 +1,5 @@
-local M = {}
+---@class dwm.dwm.Dwm
+local Dwm = {}
 
 --- Open a new window
 -- The master pane move to the top of stacks, and a new window appears.
@@ -12,7 +13,7 @@ local M = {}
 --   │    │    ├────┤    │    │    ├─────┤
 --   │    │    │ S3 │    │    │    │ S4  │
 --   └────┴────┴────┘    └────┴────┴─────┘
-function M:new()
+function Dwm:new()
   self:stack()
   vim.cmd [[topleft new]]
   self:reset()
@@ -32,7 +33,7 @@ end
 --   ├────────┤
 --   │   S3   │
 --   └────────┘
-function M:stack()
+function Dwm:stack()
   local wins = self:get_wins()
   if #wins == 1 then
     return
@@ -46,7 +47,7 @@ end
 --- Move the current window to the master pane.
 -- The previous master window is added to the top of the stack. If the current
 -- window is in the master pane already, it is moved to the top of the stack.
-function M:focus()
+function Dwm:focus()
   local wins = self:get_wins()
   if #wins == 1 then
     return
@@ -66,7 +67,7 @@ end
 
 --- Handler for BufWinEnter autocmd
 -- Recreate layout broken by the new window
-function M:buf_win_enter()
+function Dwm:buf_win_enter()
   if #self:get_wins() == 1
       or vim.w.dwm_disabled
       or vim.b.dwm_disabled
@@ -84,7 +85,7 @@ function M:buf_win_enter()
 end
 
 --- Close the current window
-function M:close()
+function Dwm:close()
   vim.api.nvim_win_close(0, false)
   if self:get_wins()[1] == vim.api.nvim_get_current_win() then
     self:wincmd "H"
@@ -94,7 +95,7 @@ function M:close()
 end
 
 --- Resize the master pane
-function M:resize(diff)
+function Dwm:resize(diff)
   local wins = self:get_wins()
   local current = vim.api.nvim_get_current_win()
   local size = vim.api.nvim_win_get_width(current)
@@ -106,7 +107,7 @@ end
 
 --- Rotate windows
 -- @param left Bool value to rotate left. Default: false
-function M:rotate(left)
+function Dwm:rotate(left)
   self:stack()
   local wins = self:get_wins()
   if left then
@@ -121,7 +122,7 @@ end
 
 --- Reset height and width of the windows
 -- This should be run after calling stack().
-function M:reset()
+function Dwm:reset()
   local wins = self:get_wins()
   if #wins == 1 then
     return
@@ -158,11 +159,11 @@ function M:reset()
   end
 end
 
-function M:parse_percentage(v) -- luacheck: ignore 212
+function Dwm:parse_percentage(v) -- luacheck: ignore 212
   return tonumber(v:match "^(%d+)%%$")
 end
 
-function M:calculate_width()
+function Dwm:calculate_width()
   if type(self.master_pane_width) == "number" then
     return self.master_pane_width
   elseif type(self.master_pane_width) == "string" then
@@ -172,11 +173,11 @@ function M:calculate_width()
   return self:default_master_pane_width()
 end
 
-function M:default_master_pane_width()
+function Dwm:default_master_pane_width()
   return math.floor(vim.o.columns / (self.master_pane_count + 1))
 end
 
-function M:get_wins() -- luacheck: ignore 212
+function Dwm:get_wins() -- luacheck: ignore 212
   local wins = {}
   for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     local is_float = vim.api.nvim_win_get_config(w).relative ~= ""
@@ -187,11 +188,11 @@ function M:get_wins() -- luacheck: ignore 212
   return wins
 end
 
-function M:wincmd(cmd)
+function Dwm:wincmd(cmd)
   vim.cmd("wincmd " .. cmd)
 end -- luacheck: ignore 212
 
-function M:map(lhs, f)
+function Dwm:map(lhs, f)
   if vim.keymap then
     vim.keymap.set("n", lhs, f, { silent = true })
     return
@@ -209,7 +210,7 @@ function M:map(lhs, f)
   vim.api.nvim_set_keymap("n", lhs, rhs, { noremap = true, silent = true })
 end
 
-function M:warn(msg) -- luacheck: ignore 212
+function Dwm:warn(msg) -- luacheck: ignore 212
   vim.api.nvim_echo({ { msg, "WarningMsg" } }, true, {})
 end
 
@@ -219,5 +220,5 @@ return (function()
     funcs = {},
     master_pane_count = 1,
   }
-  return setmetatable(self, { __index = M })
+  return setmetatable(self, { __index = Dwm })
 end)()
