@@ -1,5 +1,57 @@
----@class dwm.dwm.Dwm
+---@class dwm.main.Options
+---@field autocmd boolean
+---@field key_maps boolean
+---@field plug_maps boolean
+---@field master_pane_count integer
+---@field master_pane_width integer|string
+
+---@class dwm.main.Dwm
+---@field default_options dwm.main.Options
+---@field options dwm.main.Options
 local Dwm = {}
+
+---@return dwm.main.Dwm
+Dwm.new = function()
+  return setmetatable({
+    default_options = {
+      autocmd = true,
+      key_maps = true,
+      plug_maps = false,
+      master_pane_count = 1,
+    },
+  }, { __index = Dwm })
+end
+
+---@param opts dwm.main.Options?
+function Dwm:setup(opts)
+  self.options = vim.tbl_extend("force", self.default_options, opts or {})
+  vim.validate {
+    autocmd = { self.options.autocmd, "boolean" },
+    key_maps = { self.options.key_maps, "boolean" },
+    plug_maps = { self.options.plug_maps, "boolean" },
+    master_pane_count = {
+      self.options.master_pane_count,
+      ---@param v any
+      ---@return boolean
+      function(v)
+        return type(v) == "number" and v > 0
+      end,
+      "number greater than 0",
+    },
+    master_pane_width = {
+      self.options.master_pane_width,
+      ---@param v any
+      ---@return boolean
+      function(v)
+        if type(v) == "number" then
+          return v > 0
+        end
+        return self:parse_percentage(v) and v > 0 and v < 100 or false
+      end,
+      "number (66) or number+% string ('66%')",
+    },
+  }
+end
 
 --- Open a new window
 -- The master pane move to the top of stacks, and a new window appears.
@@ -13,7 +65,7 @@ local Dwm = {}
 --   │    │    ├────┤    │    │    ├─────┤
 --   │    │    │ S3 │    │    │    │ S4  │
 --   └────┴────┴────┘    └────┴────┴─────┘
-function Dwm:new()
+function Dwm:new_win()
   self:stack()
   vim.cmd [[topleft new]]
   self:reset()
@@ -68,13 +120,14 @@ end
 --- Handler for BufWinEnter autocmd
 -- Recreate layout broken by the new window
 function Dwm:buf_win_enter()
-  if #self:get_wins() == 1
-      or vim.w.dwm_disabled
-      or vim.b.dwm_disabled
-      or not vim.opt.buflisted:get()
-      or vim.opt.filetype:get() == ""
-      or vim.opt.filetype:get() == "help"
-      or vim.opt.buftype:get() == "quickfix"
+  if
+    #self:get_wins() == 1
+    or vim.w.dwm_disabled
+    or vim.b.dwm_disabled
+    or not vim.opt.buflisted:get()
+    or vim.opt.filetype:get() == ""
+    or vim.opt.filetype:get() == "help"
+    or vim.opt.buftype:get() == "quickfix"
   then
     return
   end
@@ -159,8 +212,10 @@ function Dwm:reset()
   end
 end
 
+---@param v any
+---@return number?
 function Dwm:parse_percentage(v) -- luacheck: ignore 212
-  return tonumber(v:match "^(%d+)%%$")
+  return type(v) == "string" and tonumber(v:match "^(%d+)%%$") or nil
 end
 
 function Dwm:calculate_width()
@@ -192,31 +247,12 @@ function Dwm:wincmd(cmd)
   vim.cmd("wincmd " .. cmd)
 end -- luacheck: ignore 212
 
-function Dwm:map(lhs, f)
-  if vim.keymap then
-    vim.keymap.set("n", lhs, f, { silent = true })
-    return
-  end
-  local rhs
-  if type(f) == "function" then
-    if not _G[self.func_var_name] then
-      _G[self.func_var_name] = self.funcs
-    end
-    self.funcs[#self.funcs + 1] = f
-    rhs = ([[<Cmd>lua %s[%d]()<CR>]]):format(self.func_var_name, #self.funcs)
-  else
-    rhs = f
-  end
-  vim.api.nvim_set_keymap("n", lhs, rhs, { noremap = true, silent = true })
-end
-
 function Dwm:warn(msg) -- luacheck: ignore 212
   vim.api.nvim_echo({ { msg, "WarningMsg" } }, true, {})
 end
 
 return (function()
   local self = {
-    func_var_name = ("__dwm_funcs_%d__"):format(vim.loop.now()),
     funcs = {},
     master_pane_count = 1,
   }

@@ -1,40 +1,17 @@
+---@class dwm
+---@field new fun(): nil
+---@field focus fun(): nil
+---@field grow fun(): nil
+---@field shrink fun(): nil
+---@field resize fun(diff: integer): nil
+---@field rotate fun(direction: boolean?): nil
+---@field rotate_left fun(): nil
+
 local dwm = require "dwm.dwm"
 
 local M
 
 M = {
-  buf_win_enter = function()
-    dwm:buf_win_enter()
-  end,
-  close = function()
-    dwm:close()
-  end,
-  focus = function()
-    dwm:focus()
-  end,
-  grow = function()
-    dwm:resize(1)
-  end,
-  map = function(lhs, rhs)
-    dwm:map(lhs, rhs)
-  end,
-  new = function()
-    dwm:new()
-  end,
-  resize = function(diff)
-    dwm:resize(diff)
-  end,
-  rotate = function()
-    dwm:rotate()
-  end,
-  rotateLeft = function()
-    dwm:rotate(true)
-  end,
-  shrink = function()
-    dwm:resize(-1)
-  end,
-  dwm = dwm,
-
   setup = function(opts)
     opts = vim.tbl_extend("force", {
       autocmd = true,
@@ -56,7 +33,7 @@ M = {
           if not v or type(v) == "number" and v > 0 then
             return true
           end
-          if not type(v) == "string" then
+          if type(v) ~= "string" then
             return false
           end
           local percentage = dwm:parse_percentage(v)
@@ -99,7 +76,7 @@ M = {
           autocmd!
           autocmd BufWinEnter * lua require'dwm'.buf_win_enter()
         augroup end
-      ]] ,
+        ]],
         false
       )
     end
