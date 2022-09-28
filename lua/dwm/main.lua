@@ -24,7 +24,7 @@ end
 
 ---@param opts dwm.main.Options?
 function Dwm:setup(opts)
-  self.options = vim.tbl_extend("force", self.default_options, opts or {})
+  local options = vim.tbl_extend("force", self.default_options, opts or {})
   vim.validate {
     autocmd = { self.options.autocmd, "boolean" },
     key_maps = { self.options.key_maps, "boolean" },
@@ -51,6 +51,39 @@ function Dwm:setup(opts)
       "number (66) or number+% string ('66%')",
     },
   }
+  self.options = options
+end
+
+function Dwm:set_mappings()
+  local function m(name)
+    return function(args)
+      return function()
+        self[name](name, unpack(args))
+      end
+    end
+  end
+
+  if self.options.plug_maps then
+    vim.keymap.set("n", "<Plug>DWMRotateCounterclockwise", m "rotate" { true })
+    vim.keymap.set("n", "<Plug>DWMRotateClockwise", m "rotate" {})
+    vim.keymap.set("n", "<Plug>DWMNew", m "new_win" {})
+    vim.keymap.set("n", "<Plug>DWMClose", m "close" {})
+    vim.keymap.set("n", "<Plug>DWMFocus", m "focus" {})
+    vim.keymap.set("n", "<Plug>DWMGrowMaster", m "resize" { 1 })
+    vim.keymap.set("n", "<Plug>DWMShrinkMaster", m "resize" { -1 })
+  end
+  if self.options.key_maps then
+    vim.keymap.set("n", "<C-j>", "<C-w>w")
+    vim.keymap.set("n", "<C-k>", "<C-w>W")
+    vim.keymap.set("n", "<C-,>", m "rotae" { true })
+    vim.keymap.set("n", "<C-.>", m "rotae" {})
+    vim.keymap.set("n", "<C-n>", m "new_win" {})
+    vim.keymap.set("n", "<C-c>", m "close" {})
+    vim.keymap.set("n", "<C-@>", m "focus" {})
+    vim.keymap.set("n", "<C-Space>", m "focus" {})
+    vim.keymap.set("n", "<C-l>", m "resize" { 1 })
+    vim.keymap.set("n", "<C-h>", m "resize" { -1 })
+  end
 end
 
 --- Open a new window
@@ -120,14 +153,13 @@ end
 --- Handler for BufWinEnter autocmd
 -- Recreate layout broken by the new window
 function Dwm:buf_win_enter()
-  if
-    #self:get_wins() == 1
-    or vim.w.dwm_disabled
-    or vim.b.dwm_disabled
-    or not vim.opt.buflisted:get()
-    or vim.opt.filetype:get() == ""
-    or vim.opt.filetype:get() == "help"
-    or vim.opt.buftype:get() == "quickfix"
+  if #self:get_wins() == 1
+      or vim.w.dwm_disabled
+      or vim.b.dwm_disabled
+      or not vim.opt.buflisted:get()
+      or vim.opt.filetype:get() == ""
+      or vim.opt.filetype:get() == "help"
+      or vim.opt.buftype:get() == "quickfix"
   then
     return
   end
