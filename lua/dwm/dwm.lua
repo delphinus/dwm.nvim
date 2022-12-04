@@ -86,7 +86,15 @@ end
 
 --- Close the current window
 function M:close()
-  vim.api.nvim_win_close(0, false)
+  local _, err = pcall(vim.api.nvim_win_close, 0, false)
+  if err then
+    if err:match "E444" then
+      vim.notify "This is the last window"
+    else
+      error(err)
+    end
+    return
+  end
   if self:get_wins()[1] == vim.api.nvim_get_current_win() then
     self:wincmd "H"
     self:stack()
