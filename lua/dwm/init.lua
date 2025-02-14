@@ -1,6 +1,17 @@
 local dwm = require "dwm.dwm"
 
 ---@class Dwm
+---@field buf_win_enter fun(): nil
+---@field close fun(): nil
+---@field focus fun(): nil
+---@field grow fun(): nil
+---@field map fun(lhs: string, rhs: string|fun(): nil): nil
+---@field new fun(): nil
+---@field resize fun(diff: integer): nil
+---@field rotate fun(): nil
+---@field rotateLeft fun(): nil
+---@field shrink fun(): nil
+---@field dwm any
 local M
 
 M = {
